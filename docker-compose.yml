@@ -1,0 +1,7 @@
+services:
+  task-api:
+    build: .
+    image: devops-task-api:local
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
