@@ -1,0 +1,80 @@
+name: CI and deploy
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - run: python -m ruff check app tests
+      - run: python -m pytest -q
+
+  build-and-deploy:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: ap-south-1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Build and push image
+        env:
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+          REPOSITORY: task-api
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t "$REGISTRY/$REPOSITORY:$IMAGE_TAG" -t "$REGISTRY/$REPOSITORY:latest" .
+          docker push "$REGISTRY/$REPOSITORY:$IMAGE_TAG"
+          docker push "$REGISTRY/$REPOSITORY:latest"
+      - name: Deploy over SSH
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          install -m 600 /dev/null "$RUNNER_TEMP/ec2_key"
+          printf '%s\n' "$EC2_SSH_KEY" > "$RUNNER_TEMP/ec2_key"
+          ssh -o StrictHostKeyChecking=accept-new -i "$RUNNER_TEMP/ec2_key" "ec2-user@$EC2_HOST" \
+            "AWS_REGION='$AWS_REGION' REGISTRY='$REGISTRY' IMAGE_TAG='$IMAGE_TAG' bash -s" <<'REMOTE'
+          set -euo pipefail
+          aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$REGISTRY"
+          docker pull "$REGISTRY/task-api:$IMAGE_TAG"
+          docker rm -f task-api || true
+          docker run -d --name task-api --restart unless-stopped -p 80:8000 \
+            --log-driver=awslogs --log-opt awslogs-region="$AWS_REGION" \
+            --log-opt awslogs-group=task-api --log-opt awslogs-create-group=true \
+            "$REGISTRY/task-api:$IMAGE_TAG"
+          REMOTE
+      - name: Smoke test
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          for attempt in $(seq 1 12); do
+            if curl --fail --silent "http://$EC2_HOST/health" | grep -q '"status":"ok"'; then
+              echo "API health check passed"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "API health check failed after retries" >&2
+          exit 1
