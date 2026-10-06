@@ -13,7 +13,6 @@ const toast = document.querySelector("#toast");
 const searchInput = document.querySelector("#task-search");
 const toastMessage = document.querySelector("#toast-message");
 const toastAction = document.querySelector("#toast-action");
-const quickAdd = document.querySelector("#quick-add");
 const filterButtons = [...document.querySelectorAll(".filter")];
 const supabaseReady = Boolean(config.url && config.key);
 const supabase = supabaseReady ? createClient(config.url, config.key) : null;
@@ -32,7 +31,7 @@ function notify(message, action = null) {
   toastTimer = setTimeout(() => toast.classList.remove("show"), 2800);
 }
 
-function setConnection(connected, message = connected ? "Your list is saved" : "Connection issue") {
+function setConnection(connected, message = connected ? "Saved" : "Connection issue") {
   const indicator = document.querySelector("#api-status");
   indicator.classList.toggle("error", !connected);
   document.querySelector("#api-status-text").textContent = message;
@@ -45,49 +44,45 @@ function render() {
   document.querySelector("#progress-count").textContent = `${completeCount} / ${tasks.length} done`;
   document.querySelector("#progress-bar").style.width = `${progress}%`;
   document.querySelector(".progress-track").setAttribute("aria-valuenow", progress);
-  document.querySelector("#progress-title").textContent = tasks.length === 0 ? "A fresh start" : remaining === 0 ? "Look at you go!" : "You're making progress";
-  document.querySelector("#progress-caption").textContent = tasks.length === 0 ? "Add a task and get going." : remaining === 0 ? "Everything on your list is complete." : `${remaining} ${remaining === 1 ? "task" : "tasks"} left to tackle.`;
-  document.querySelector("#task-summary").textContent = `${tasks.length} ${tasks.length === 1 ? "task" : "tasks"} on your list`;
+  document.querySelector("#progress-title").textContent = "Task completion";
+  document.querySelector("#progress-caption").textContent = tasks.length ? `${completeCount} completed · ${remaining} remaining` : "No completed tasks";
   document.querySelector("#count-all").textContent = tasks.length;
   document.querySelector("#count-active").textContent = remaining;
   document.querySelector("#count-done").textContent = completeCount;
-  quickAdd.hidden = tasks.length > 0;
+  document.querySelector("#today-label").textContent = new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" }).format(new Date());
+  const filterNames = { all: "All tasks", active: "To do", done: "Completed" };
+  document.querySelector("#list-heading").textContent = filterNames[activeFilter];
 
   filterButtons.forEach(button => button.setAttribute("aria-pressed", String(button.dataset.filter === activeFilter)));
   const query = searchInput.value.trim().toLocaleLowerCase();
   const visibleTasks = tasks.filter(task => (activeFilter === "all" || (activeFilter === "done" ? task.done : !task.done)) && task.title.toLocaleLowerCase().includes(query));
+  document.querySelector("#task-summary").textContent = query ? `${visibleTasks.length} matching ${visibleTasks.length === 1 ? "task" : "tasks"}` : `${visibleTasks.length} ${visibleTasks.length === 1 ? "task" : "tasks"}`;
   list.replaceChildren();
 
   if (visibleTasks.length === 0) {
     const empty = document.createElement("li");
-    empty.className = "empty";
+    empty.className = "empty-state";
     const icon = document.createElement("div");
     icon.className = "empty-icon";
     icon.textContent = "▤";
+    const message = document.createElement("div");
     const heading = document.createElement("strong");
-    const message = document.createElement("span");
+    const detail = document.createElement("span");
     if (query) {
       heading.textContent = "No matching tasks";
-      message.textContent = `Nothing matches “${searchInput.value.trim()}”. Try another search.`;
-      const clear = document.createElement("button");
-      clear.className = "clear-search";
-      clear.type = "button";
-      clear.textContent = "Clear search";
-      clear.addEventListener("click", () => { searchInput.value = ""; searchInput.focus(); render(); });
-      empty.append(icon, heading, message, clear);
-      list.append(empty);
-      return;
+      detail.textContent = "Try a different search term.";
     } else if (tasks.length === 0) {
-      heading.textContent = "Your list is ready when you are";
-      message.textContent = "Add your first task above to get started.";
+      heading.textContent = "No tasks yet";
+      detail.textContent = "Add your first task using the field above.";
     } else if (activeFilter === "done") {
-      heading.textContent = "Nothing completed just yet";
-      message.textContent = "Finish a task and it will show up here.";
+      heading.textContent = "No completed tasks";
+      detail.textContent = "Completed tasks will appear here.";
     } else {
-      heading.textContent = "You're all caught up";
-      message.textContent = "Everything is done. Enjoy the breathing room.";
+      heading.textContent = "All tasks are complete";
+      detail.textContent = "Switch to Completed to see them.";
     }
-    empty.append(icon, heading, message);
+    message.append(heading, detail);
+    empty.append(icon, message);
     list.append(empty);
     return;
   }
@@ -150,7 +145,12 @@ function startEditing(row, task) {
   const save = document.createElement("button");
   save.className = "save-edit";
   save.textContent = "Save";
-  editForm.append(editInput, save);
+  const cancel = document.createElement("button");
+  cancel.className = "cancel-edit";
+  cancel.type = "button";
+  cancel.textContent = "Cancel";
+  cancel.addEventListener("click", render);
+  editForm.append(editInput, save, cancel);
   row.replaceChildren(editForm);
   editInput.focus();
   editInput.select();
@@ -188,16 +188,16 @@ async function deleteTask(id) {
   tasks = tasks.filter(task => task.id !== id);
   setConnection(true);
   render();
-  notify("Task removed.", { label: "Undo", run: async () => {
+  notify("Task deleted", { label: "Undo", run: async () => {
     const { data, error: restoreError } = await supabase.from("tasks").insert({ title: removed.title, done: removed.done }).select().single();
     if (restoreError) {
       notify(restoreError.message);
       return;
     }
     tasks.push(data);
-    setConnection(true, "Private guest list");
+    setConnection(true, "Saved");
     render();
-    notify("Task restored.");
+    notify("Task restored");
   }});
 }
 
@@ -238,7 +238,7 @@ async function startApp() {
       return;
     }
   }
-  setConnection(true, "Private guest list");
+  setConnection(true, "Saved");
   await loadTasks();
 }
 
@@ -256,7 +256,7 @@ form.addEventListener("submit", async event => {
     tasks.push(data);
     input.value = "";
     activeFilter = "all";
-    setConnection(true, "Private guest list");
+    setConnection(true, "Saved");
     render();
     input.focus();
   }
@@ -269,15 +269,15 @@ filterButtons.forEach(button => button.addEventListener("click", () => {
 }));
 
 searchInput.addEventListener("input", render);
-document.querySelectorAll("[data-suggestion]").forEach(button => button.addEventListener("click", () => {
-  input.value = button.dataset.suggestion;
-  input.focus();
-  input.setSelectionRange(input.value.length, input.value.length);
-}));
+document.querySelectorAll("#sidebar-add, #heading-add").forEach(button => button.addEventListener("click", () => input.focus()));
 document.addEventListener("keydown", event => {
   if (event.key === "/" && !["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) {
     event.preventDefault();
     searchInput.focus();
+  }
+  if (event.key.toLowerCase() === "n" && !["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) {
+    event.preventDefault();
+    input.focus();
   }
   if (event.key === "Escape" && document.activeElement === searchInput) {
     searchInput.value = "";
@@ -285,6 +285,5 @@ document.addEventListener("keydown", event => {
     render();
   }
 });
-document.querySelector("#today-label").textContent = new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric" }).format(new Date());
 
 startApp();

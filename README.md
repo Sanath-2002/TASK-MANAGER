@@ -46,7 +46,7 @@ flowchart LR
 
 For a frontend hosted on Vercel with durable database storage, see [web/README.md](web/README.md). That version uses Supabase Postgres with a background guest identity, so there is no login screen and each browser has a private task list. It is a separate static frontend; the FastAPI, Docker, and AWS portfolio path above remains available.
 
-Both task manager interfaces include quick-start suggestions, live progress, task search, filter counts, keyboard search (`/`), and an Undo action after deleting a task.
+Both task manager interfaces include live completion progress, task search, filter counts, keyboard shortcuts (`N` to add and `/` to search), and an Undo action after deleting a task.
 
 ## Prerequisites
 

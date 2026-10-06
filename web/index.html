@@ -3,61 +3,59 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#f5f7fb" />
-    <title>Taskboard — a little more done</title>
+    <meta name="theme-color" content="#f8fafc" />
+    <title>Taskboard</title>
   </head>
   <body>
-    <main class="shell">
-      <header class="brand">
-        <div class="brand-mark" aria-hidden="true">✓</div>
-        <div><div class="brand-name">Taskboard</div><div class="brand-note">A little more done, every day.</div></div>
-      </header>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Task navigation">
+        <a class="brand" href="/" aria-label="Taskboard home">
+          <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.2 4.2L19.5 6.8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span class="brand-name">Taskboard</span>
+        </a>
+        <button class="sidebar-add" id="sidebar-add" type="button"><span aria-hidden="true">＋</span> New task <kbd>N</kbd></button>
+        <p class="nav-label">TASKS</p>
+        <nav class="nav-filters" aria-label="Task filters">
+          <button class="filter nav-filter" type="button" data-filter="all" aria-pressed="true"><span class="nav-icon">☷</span><span>All tasks</span><span class="filter-count" id="count-all">0</span></button>
+          <button class="filter nav-filter" type="button" data-filter="active" aria-pressed="false"><span class="nav-icon">○</span><span>To do</span><span class="filter-count" id="count-active">0</span></button>
+          <button class="filter nav-filter" type="button" data-filter="done" aria-pressed="false"><span class="nav-icon">✓</span><span>Completed</span><span class="filter-count" id="count-done">0</span></button>
+        </nav>
+        <div class="sidebar-bottom"><span class="connection-dot"></span><span>No account required</span></div>
+      </aside>
 
-      <section class="panel" aria-labelledby="page-title">
-        <div class="intro">
-          <p class="eyebrow">Your space, your pace</p>
-          <h1 id="page-title">Make room for what matters.</h1>
-          <p class="subtitle">Keep your day moving, one small win at a time.</p>
-          <p class="today-label" id="today-label"></p>
-        </div>
-
-        <section class="progress-card" aria-live="polite">
-          <div class="progress-icon" aria-hidden="true">✓</div>
-          <div class="progress-copy"><div class="progress-title" id="progress-title">A fresh start</div><div class="progress-caption" id="progress-caption">Add a task and get going.</div><div class="progress-track" role="progressbar" aria-label="Daily task progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progress-bar"></span></div></div>
-          <div class="progress-count" id="progress-count">0 / 0 done</div>
-        </section>
-
-        <form class="add-form" id="add-form">
-          <input id="new-task" name="title" maxlength="100" placeholder="What would you like to get done?" autocomplete="off" required aria-label="New task title" />
-          <button class="primary" type="submit"><span aria-hidden="true">＋</span> Add task</button>
-        </form>
-
-        <div class="quick-add" id="quick-add">
-          <span>Need a starting point?</span>
-          <button type="button" data-suggestion="Plan my day">Plan my day</button>
-          <button type="button" data-suggestion="Take a short break">Take a break</button>
-          <button type="button" data-suggestion="Finish one small task">One small win</button>
-        </div>
-
-        <div class="toolbar">
-          <div class="list-label">Your tasks</div>
-          <div class="filters" role="group" aria-label="Filter tasks">
-            <button class="filter" type="button" data-filter="all" aria-pressed="true">All <span class="filter-count" id="count-all">0</span></button>
-            <button class="filter" type="button" data-filter="active" aria-pressed="false">To do <span class="filter-count" id="count-active">0</span></button>
-            <button class="filter" type="button" data-filter="done" aria-pressed="false">Done <span class="filter-count" id="count-done">0</span></button>
+      <div class="main-area">
+        <header class="topbar">
+          <div class="breadcrumbs"><span>Workspace</span><span class="crumb-divider">/</span><strong>Tasks</strong></div>
+          <div class="topbar-status"><span class="api-status" id="api-status"><span class="status-dot"></span><span id="api-status-text">Connecting</span></span></div>
+        </header>
+        <main class="content">
+          <div class="page-heading">
+            <div><p class="today-label" id="today-label"></p><h1>My tasks</h1><p class="page-description">Add, organize, and complete your tasks.</p></div>
+            <button class="primary heading-add" id="heading-add" type="button"><span aria-hidden="true">＋</span> Add task</button>
           </div>
-        </div>
 
-        <label class="search-wrap" for="task-search"><span aria-hidden="true">⌕</span><input id="task-search" type="search" placeholder="Search your tasks" autocomplete="off"><kbd>/</kbd></label>
+          <section class="progress-card" aria-label="Task completion summary">
+            <div class="progress-heading"><span class="progress-title" id="progress-title">Task completion</span><span class="progress-count" id="progress-count">0 / 0</span></div>
+            <div class="progress-bottom"><span class="progress-caption" id="progress-caption">No completed tasks</span><div class="progress-track" role="progressbar" aria-label="Task completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progress-bar"></span></div></div>
+          </section>
 
-        <ul class="task-list" id="task-list" aria-live="polite"></ul>
-        <div class="footer">
-          <span id="task-summary">Connecting to your private task list…</span>
-          <span class="api-status" id="api-status"><span class="status-dot"></span><span id="api-status-text">Connecting</span></span>
-        </div>
-      </section>
-      <p class="privacy-note">No signup needed. Your list belongs to this browser.</p>
-    </main>
+          <form class="add-form" id="add-form">
+            <span class="add-icon" aria-hidden="true">＋</span>
+            <input id="new-task" name="title" maxlength="100" placeholder="Add a task…" autocomplete="off" required aria-label="New task title" />
+            <span class="form-hint">Press Enter to add</span>
+            <button class="primary" type="submit">Add task</button>
+          </form>
+
+          <section class="task-section" aria-labelledby="list-heading">
+            <div class="list-toolbar">
+              <div><h2 id="list-heading">All tasks</h2><p id="task-summary">Connecting to your task list…</p></div>
+              <label class="search-wrap" for="task-search"><span aria-hidden="true">⌕</span><input id="task-search" type="search" placeholder="Search tasks" autocomplete="off"><kbd>/</kbd></label>
+            </div>
+            <ul class="task-list" id="task-list" aria-live="polite"></ul>
+          </section>
+        </main>
+      </div>
+    </div>
     <div class="toast" id="toast" role="status" aria-live="polite"><span id="toast-message"></span><button id="toast-action" type="button" hidden></button></div>
     <script type="module" src="/src/main.js"></script>
   </body>
