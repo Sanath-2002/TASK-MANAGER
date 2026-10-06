@@ -10,6 +10,10 @@ const list = document.querySelector("#task-list");
 const form = document.querySelector("#add-form");
 const input = document.querySelector("#new-task");
 const toast = document.querySelector("#toast");
+const searchInput = document.querySelector("#task-search");
+const toastMessage = document.querySelector("#toast-message");
+const toastAction = document.querySelector("#toast-action");
+const quickAdd = document.querySelector("#quick-add");
 const filterButtons = [...document.querySelectorAll(".filter")];
 const supabaseReady = Boolean(config.url && config.key);
 const supabase = supabaseReady ? createClient(config.url, config.key) : null;
@@ -18,8 +22,11 @@ let tasks = [];
 let activeFilter = "all";
 let toastTimer;
 
-function notify(message) {
-  toast.textContent = message;
+function notify(message, action = null) {
+  toastMessage.textContent = message;
+  toastAction.hidden = !action;
+  toastAction.textContent = action?.label || "";
+  toastAction.onclick = action ? async () => { toast.classList.remove("show"); await action.run(); } : null;
   toast.classList.add("show");
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toast.classList.remove("show"), 2800);
@@ -34,13 +41,21 @@ function setConnection(connected, message = connected ? "Your list is saved" : "
 function render() {
   const completeCount = tasks.filter(task => task.done).length;
   const remaining = tasks.length - completeCount;
+  const progress = tasks.length ? Math.round((completeCount / tasks.length) * 100) : 0;
   document.querySelector("#progress-count").textContent = `${completeCount} / ${tasks.length} done`;
+  document.querySelector("#progress-bar").style.width = `${progress}%`;
+  document.querySelector(".progress-track").setAttribute("aria-valuenow", progress);
   document.querySelector("#progress-title").textContent = tasks.length === 0 ? "A fresh start" : remaining === 0 ? "Look at you go!" : "You're making progress";
   document.querySelector("#progress-caption").textContent = tasks.length === 0 ? "Add a task and get going." : remaining === 0 ? "Everything on your list is complete." : `${remaining} ${remaining === 1 ? "task" : "tasks"} left to tackle.`;
   document.querySelector("#task-summary").textContent = `${tasks.length} ${tasks.length === 1 ? "task" : "tasks"} on your list`;
+  document.querySelector("#count-all").textContent = tasks.length;
+  document.querySelector("#count-active").textContent = remaining;
+  document.querySelector("#count-done").textContent = completeCount;
+  quickAdd.hidden = tasks.length > 0;
 
   filterButtons.forEach(button => button.setAttribute("aria-pressed", String(button.dataset.filter === activeFilter)));
-  const visibleTasks = tasks.filter(task => activeFilter === "all" || (activeFilter === "done" ? task.done : !task.done));
+  const query = searchInput.value.trim().toLocaleLowerCase();
+  const visibleTasks = tasks.filter(task => (activeFilter === "all" || (activeFilter === "done" ? task.done : !task.done)) && task.title.toLocaleLowerCase().includes(query));
   list.replaceChildren();
 
   if (visibleTasks.length === 0) {
@@ -51,7 +66,18 @@ function render() {
     icon.textContent = "▤";
     const heading = document.createElement("strong");
     const message = document.createElement("span");
-    if (tasks.length === 0) {
+    if (query) {
+      heading.textContent = "No matching tasks";
+      message.textContent = `Nothing matches “${searchInput.value.trim()}”. Try another search.`;
+      const clear = document.createElement("button");
+      clear.className = "clear-search";
+      clear.type = "button";
+      clear.textContent = "Clear search";
+      clear.addEventListener("click", () => { searchInput.value = ""; searchInput.focus(); render(); });
+      empty.append(icon, heading, message, clear);
+      list.append(empty);
+      return;
+    } else if (tasks.length === 0) {
       heading.textContent = "Your list is ready when you are";
       message.textContent = "Add your first task above to get started.";
     } else if (activeFilter === "done") {
@@ -152,6 +178,7 @@ async function saveTask(id, values) {
 }
 
 async function deleteTask(id) {
+  const removed = tasks.find(task => task.id === id);
   const { error } = await supabase.from("tasks").delete().eq("id", id);
   if (error) {
     setConnection(false);
@@ -161,7 +188,17 @@ async function deleteTask(id) {
   tasks = tasks.filter(task => task.id !== id);
   setConnection(true);
   render();
-  notify("Task removed.");
+  notify("Task removed.", { label: "Undo", run: async () => {
+    const { data, error: restoreError } = await supabase.from("tasks").insert({ title: removed.title, done: removed.done }).select().single();
+    if (restoreError) {
+      notify(restoreError.message);
+      return;
+    }
+    tasks.push(data);
+    setConnection(true, "Private guest list");
+    render();
+    notify("Task restored.");
+  }});
 }
 
 async function loadTasks() {
@@ -230,5 +267,24 @@ filterButtons.forEach(button => button.addEventListener("click", () => {
   activeFilter = button.dataset.filter;
   render();
 }));
+
+searchInput.addEventListener("input", render);
+document.querySelectorAll("[data-suggestion]").forEach(button => button.addEventListener("click", () => {
+  input.value = button.dataset.suggestion;
+  input.focus();
+  input.setSelectionRange(input.value.length, input.value.length);
+}));
+document.addEventListener("keydown", event => {
+  if (event.key === "/" && !["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) {
+    event.preventDefault();
+    searchInput.focus();
+  }
+  if (event.key === "Escape" && document.activeElement === searchInput) {
+    searchInput.value = "";
+    searchInput.blur();
+    render();
+  }
+});
+document.querySelector("#today-label").textContent = new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric" }).format(new Date());
 
 startApp();

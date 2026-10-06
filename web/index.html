@@ -18,11 +18,12 @@
           <p class="eyebrow">Your space, your pace</p>
           <h1 id="page-title">Make room for what matters.</h1>
           <p class="subtitle">Keep your day moving, one small win at a time.</p>
+          <p class="today-label" id="today-label"></p>
         </div>
 
         <section class="progress-card" aria-live="polite">
           <div class="progress-icon" aria-hidden="true">✓</div>
-          <div class="progress-copy"><div class="progress-title" id="progress-title">A fresh start</div><div class="progress-caption" id="progress-caption">Add a task and get going.</div></div>
+          <div class="progress-copy"><div class="progress-title" id="progress-title">A fresh start</div><div class="progress-caption" id="progress-caption">Add a task and get going.</div><div class="progress-track" role="progressbar" aria-label="Daily task progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progress-bar"></span></div></div>
           <div class="progress-count" id="progress-count">0 / 0 done</div>
         </section>
 
@@ -31,14 +32,23 @@
           <button class="primary" type="submit"><span aria-hidden="true">＋</span> Add task</button>
         </form>
 
+        <div class="quick-add" id="quick-add">
+          <span>Need a starting point?</span>
+          <button type="button" data-suggestion="Plan my day">Plan my day</button>
+          <button type="button" data-suggestion="Take a short break">Take a break</button>
+          <button type="button" data-suggestion="Finish one small task">One small win</button>
+        </div>
+
         <div class="toolbar">
           <div class="list-label">Your tasks</div>
           <div class="filters" role="group" aria-label="Filter tasks">
-            <button class="filter" type="button" data-filter="all" aria-pressed="true">All</button>
-            <button class="filter" type="button" data-filter="active" aria-pressed="false">To do</button>
-            <button class="filter" type="button" data-filter="done" aria-pressed="false">Done</button>
+            <button class="filter" type="button" data-filter="all" aria-pressed="true">All <span class="filter-count" id="count-all">0</span></button>
+            <button class="filter" type="button" data-filter="active" aria-pressed="false">To do <span class="filter-count" id="count-active">0</span></button>
+            <button class="filter" type="button" data-filter="done" aria-pressed="false">Done <span class="filter-count" id="count-done">0</span></button>
           </div>
         </div>
+
+        <label class="search-wrap" for="task-search"><span aria-hidden="true">⌕</span><input id="task-search" type="search" placeholder="Search your tasks" autocomplete="off"><kbd>/</kbd></label>
 
         <ul class="task-list" id="task-list" aria-live="polite"></ul>
         <div class="footer">
@@ -48,7 +58,7 @@
       </section>
       <p class="privacy-note">No signup needed. Your list belongs to this browser.</p>
     </main>
-    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="toast" id="toast" role="status" aria-live="polite"><span id="toast-message"></span><button id="toast-action" type="button" hidden></button></div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

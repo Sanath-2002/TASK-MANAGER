@@ -41,6 +41,8 @@
     .panel { overflow: hidden; border: 1px solid #ffffffd9; border-radius: 24px; background: var(--paper); box-shadow: var(--shadow); }
     .intro { padding: 34px 38px 25px; }
     .eyebrow { margin: 0 0 9px; color: var(--accent); font-size: 11px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+    .today-label { display: inline-flex; align-items: center; gap: 7px; margin: 14px 0 0; color: #737f98; font-size: 12px; font-weight: 650; }
+    .today-label::before { width: 6px; height: 6px; border-radius: 50%; background: #52b889; content: ""; }
     h1 { margin: 0; font-size: clamp(27px, 5vw, 36px); letter-spacing: -.055em; line-height: 1.12; }
     .subtitle { margin: 10px 0 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
     .progress-card { display: flex; align-items: center; gap: 15px; margin: 25px 38px 0; padding: 15px 17px; border: 1px solid #e7f1eb; border-radius: 15px; background: #f6fbf8; }
@@ -49,6 +51,8 @@
     .progress-copy { min-width: 0; flex: 1; }
     .progress-title { font-size: 13px; font-weight: 720; }
     .progress-caption { margin-top: 3px; color: var(--muted); font-size: 12px; }
+    .progress-track { overflow: hidden; height: 5px; margin-top: 11px; border-radius: 99px; background: #dfeee6; }
+    .progress-track span { display: block; width: 0; height: 100%; border-radius: inherit; background: #4cb17e; transition: width .35s ease; }
     .progress-count { color: #31875f; font-size: 13px; font-weight: 760; white-space: nowrap; }
     .add-form { display: flex; gap: 10px; padding: 24px 38px 22px; }
     .add-form input { min-width: 0; flex: 1; height: 48px; padding: 0 15px; border: 1px solid var(--line); border-radius: 12px; outline: none; background: #fbfcfe; color: var(--ink); font-size: 14px; transition: border .15s, box-shadow .15s; }
@@ -57,13 +61,27 @@
     .primary { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 46px; padding: 0 16px; border: 0; border-radius: 12px; background: var(--accent); color: white; font-size: 13px; font-weight: 700; transition: background .15s, transform .15s; }
     .primary:hover { transform: translateY(-1px); background: var(--accent-dark); }
     .primary svg { width: 16px; height: 16px; }
+    .quick-add { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; padding: 0 38px 19px; color: #8a94a7; font-size: 11px; }
+    .quick-add[hidden] { display: none; }
+    .quick-add button { padding: 6px 9px; border: 1px solid #e9eaf7; border-radius: 99px; background: #fafaff; color: #6466bb; font-size: 11px; font-weight: 650; transition: .15s; }
+    .quick-add button:hover { border-color: #c7c8f3; background: #f0f0ff; transform: translateY(-1px); }
     .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 38px 14px; }
     .list-label { color: #69758d; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
     .filters { display: flex; gap: 4px; padding: 4px; border-radius: 10px; background: #f3f5f9; }
     .filter { padding: 7px 11px; border: 0; border-radius: 7px; background: transparent; color: #7b8498; font-size: 11px; font-weight: 700; }
     .filter[aria-pressed="true"] { background: white; color: var(--ink); box-shadow: 0 1px 4px #26345b18; }
+    .filter-count { display: inline-grid; min-width: 17px; height: 17px; margin-left: 3px; padding: 0 4px; place-items: center; border-radius: 99px; background: #e9ebf2; color: #69758d; font-size: 10px; }
+    .filter[aria-pressed="true"] .filter-count { background: #ededff; color: var(--accent); }
+    .search-wrap { display: flex; align-items: center; gap: 9px; height: 42px; margin: 0 38px 8px; padding: 0 11px; border: 1px solid var(--line); border-radius: 11px; color: #8993a6; background: #fbfcfe; }
+    .search-wrap:focus-within { border-color: #9999ef; box-shadow: 0 0 0 3px #5758d610; }
+    .search-wrap > span { font-size: 22px; line-height: 1; }
+    .search-wrap input { min-width: 0; flex: 1; border: 0; outline: 0; background: transparent; color: var(--ink); font-size: 12px; }
+    .search-wrap input::placeholder { color: #9aa3b5; }
+    .search-wrap kbd { padding: 2px 5px; border: 1px solid #e4e7ef; border-radius: 5px; background: white; color: #9aa3b5; font: inherit; font-size: 10px; }
     .task-list { margin: 0; padding: 0 24px 8px; list-style: none; }
     .task-row { display: flex; align-items: center; gap: 12px; min-height: 65px; padding: 10px 14px; border-top: 1px solid #f0f2f6; }
+    .task-row { animation: task-enter .2s ease both; }
+    @keyframes task-enter { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     .check-wrap { position: relative; display: grid; flex: 0 0 22px; width: 22px; height: 22px; place-items: center; }
     .check-wrap input { position: absolute; width: 22px; height: 22px; margin: 0; opacity: 0; cursor: pointer; }
     .checkmark { display: grid; width: 20px; height: 20px; place-items: center; border: 1.5px solid #cbd1de; border-radius: 7px; color: transparent; transition: .15s; }
@@ -86,26 +104,31 @@
     .empty-icon svg { width: 23px; }
     .empty strong { color: #38445c; font-size: 13px; }
     .empty span { margin-top: 5px; font-size: 12px; }
+    .clear-search { margin-top: 12px; padding: 7px 11px; border: 1px solid #e5e6f8; border-radius: 8px; background: white; color: var(--accent); font-size: 11px; font-weight: 700; }
+    .clear-search:hover { background: #f4f4ff; }
     .footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 38px 19px; border-top: 1px solid #f0f2f6; color: #929bad; font-size: 11px; }
     .api-status { display: inline-flex; align-items: center; gap: 6px; }
     .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #50b882; box-shadow: 0 0 0 3px #50b88220; }
     .api-status.error .status-dot { background: #df6b68; box-shadow: 0 0 0 3px #df6b6820; }
-    .toast { position: fixed; right: 22px; bottom: 22px; max-width: min(360px, calc(100vw - 44px)); padding: 12px 16px; border: 1px solid #ffffff3d; border-radius: 12px; background: #202a42; color: white; box-shadow: 0 10px 35px #18213a35; font-size: 13px; opacity: 0; pointer-events: none; transform: translateY(8px); transition: .2s; }
-    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast { position: fixed; right: 22px; bottom: 22px; display: flex; align-items: center; gap: 18px; max-width: min(390px, calc(100vw - 44px)); padding: 12px 14px 12px 16px; border: 1px solid #ffffff3d; border-radius: 12px; background: #202a42; color: white; box-shadow: 0 10px 35px #18213a35; font-size: 13px; opacity: 0; pointer-events: none; transform: translateY(8px); transition: .2s; }
+    .toast.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+    .toast button { border: 0; background: transparent; color: #c8c8ff; font-size: 12px; font-weight: 750; }
     @media (max-width: 560px) {
       body { padding: 28px 12px 50px; }
       .brand { margin: 0 5px 19px; }
       .intro { padding: 28px 22px 20px; }
       .progress-card { margin: 20px 22px 0; }
       .add-form { gap: 8px; padding: 20px 22px; }
+      .quick-add { padding: 0 22px 18px; }
       .add-form input { height: 45px; padding: 0 11px; font-size: 13px; }
       .primary { min-height: 44px; padding: 0 12px; }
       .toolbar { align-items: flex-start; flex-direction: column; padding: 0 22px 13px; }
+      .search-wrap { margin-right: 22px; margin-left: 22px; }
       .task-list { padding-right: 13px; padding-left: 13px; }
       .task-actions { opacity: 1; }
       .footer { padding-right: 22px; padding-left: 22px; }
     }
-    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }
   </style>
 </head>
 <body>
@@ -122,13 +145,14 @@
         <p class="eyebrow">Your space, your pace</p>
         <h1 id="page-title">Make room for what matters.</h1>
         <p class="subtitle">Keep your day moving, one small win at a time.</p>
+        <p class="today-label" id="today-label"></p>
       </div>
 
       <section class="progress-card" aria-live="polite">
         <div class="progress-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.2 4.2L19.5 6.8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-        <div class="progress-copy"><div class="progress-title" id="progress-title">A fresh start</div><div class="progress-caption" id="progress-caption">Add a task and get going.</div></div>
+        <div class="progress-copy"><div class="progress-title" id="progress-title">A fresh start</div><div class="progress-caption" id="progress-caption">Add a task and get going.</div><div class="progress-track" role="progressbar" aria-label="Daily task progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progress-bar"></span></div></div>
         <div class="progress-count" id="progress-count">0 / 0 done</div>
       </section>
 
@@ -140,14 +164,23 @@
         </button>
       </form>
 
+      <div class="quick-add" id="quick-add">
+        <span>Need a starting point?</span>
+        <button type="button" data-suggestion="Plan my day">Plan my day</button>
+        <button type="button" data-suggestion="Take a short break">Take a break</button>
+        <button type="button" data-suggestion="Finish one small task">One small win</button>
+      </div>
+
       <div class="toolbar">
         <div class="list-label">Your tasks</div>
         <div class="filters" role="group" aria-label="Filter tasks">
-          <button class="filter" type="button" data-filter="all" aria-pressed="true">All</button>
-          <button class="filter" type="button" data-filter="active" aria-pressed="false">To do</button>
-          <button class="filter" type="button" data-filter="done" aria-pressed="false">Done</button>
+          <button class="filter" type="button" data-filter="all" aria-pressed="true">All <span class="filter-count" id="count-all">0</span></button>
+          <button class="filter" type="button" data-filter="active" aria-pressed="false">To do <span class="filter-count" id="count-active">0</span></button>
+          <button class="filter" type="button" data-filter="done" aria-pressed="false">Done <span class="filter-count" id="count-done">0</span></button>
         </div>
       </div>
+
+      <label class="search-wrap" for="task-search"><span aria-hidden="true">⌕</span><input id="task-search" type="search" placeholder="Search your tasks" autocomplete="off"><kbd>/</kbd></label>
 
       <ul class="task-list" id="task-list" aria-live="polite"></ul>
       <div class="footer">
@@ -156,13 +189,17 @@
       </div>
     </section>
   </main>
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"><span id="toast-message"></span><button id="toast-action" type="button" hidden></button></div>
 
   <script>
     const list = document.querySelector("#task-list");
     const form = document.querySelector("#add-form");
     const input = document.querySelector("#new-task");
     const toast = document.querySelector("#toast");
+    const searchInput = document.querySelector("#task-search");
+    const toastMessage = document.querySelector("#toast-message");
+    const toastAction = document.querySelector("#toast-action");
+    const quickAdd = document.querySelector("#quick-add");
     const filterButtons = [...document.querySelectorAll(".filter")];
     let tasks = [];
     let activeFilter = "all";
@@ -187,8 +224,11 @@
       return response.status === 204 ? null : response.json();
     }
 
-    function notify(message) {
-      toast.textContent = message;
+    function notify(message, action = null) {
+      toastMessage.textContent = message;
+      toastAction.hidden = !action;
+      toastAction.textContent = action?.label || "";
+      toastAction.onclick = action ? async () => { toast.classList.remove("show"); await action.run(); } : null;
       toast.classList.add("show");
       clearTimeout(toastTimer);
       toastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
@@ -203,13 +243,21 @@
     function render() {
       const completeCount = tasks.filter(task => task.done).length;
       const remaining = tasks.length - completeCount;
+      const progress = tasks.length ? Math.round((completeCount / tasks.length) * 100) : 0;
       document.querySelector("#progress-count").textContent = `${completeCount} / ${tasks.length} done`;
+      document.querySelector("#progress-bar").style.width = `${progress}%`;
+      document.querySelector(".progress-track").setAttribute("aria-valuenow", progress);
       document.querySelector("#progress-title").textContent = tasks.length === 0 ? "A fresh start" : remaining === 0 ? "Look at you go!" : "You're making progress";
       document.querySelector("#progress-caption").textContent = tasks.length === 0 ? "Add a task and get going." : remaining === 0 ? "Everything on your list is complete." : `${remaining} ${remaining === 1 ? "task" : "tasks"} left to tackle.`;
       document.querySelector("#task-summary").textContent = `${tasks.length} ${tasks.length === 1 ? "task" : "tasks"} on your list`;
+      document.querySelector("#count-all").textContent = tasks.length;
+      document.querySelector("#count-active").textContent = remaining;
+      document.querySelector("#count-done").textContent = completeCount;
+      quickAdd.hidden = tasks.length > 0;
 
       filterButtons.forEach(button => button.setAttribute("aria-pressed", String(button.dataset.filter === activeFilter)));
-      const visibleTasks = tasks.filter(task => activeFilter === "all" || (activeFilter === "done" ? task.done : !task.done));
+      const query = searchInput.value.trim().toLocaleLowerCase();
+      const visibleTasks = tasks.filter(task => (activeFilter === "all" || (activeFilter === "done" ? task.done : !task.done)) && task.title.toLocaleLowerCase().includes(query));
       list.replaceChildren();
 
       if (visibleTasks.length === 0) {
@@ -220,7 +268,18 @@
         icon.innerHTML = icons.empty;
         const heading = document.createElement("strong");
         const message = document.createElement("span");
-        if (tasks.length === 0) {
+        if (query) {
+          heading.textContent = "No matching tasks";
+          message.textContent = `Nothing matches “${searchInput.value.trim()}”. Try another search.`;
+          const clear = document.createElement("button");
+          clear.className = "clear-search";
+          clear.type = "button";
+          clear.textContent = "Clear search";
+          clear.addEventListener("click", () => { searchInput.value = ""; searchInput.focus(); render(); });
+          empty.append(icon, heading, message, clear);
+          list.append(empty);
+          return;
+        } else if (tasks.length === 0) {
           heading.textContent = "Your list is ready when you are";
           message.textContent = "Add your first task above to get started.";
         } else if (activeFilter === "done") {
@@ -324,11 +383,20 @@
 
     async function deleteTask(id) {
       try {
+        const removed = tasks.find(task => task.id === id);
         await request(`/tasks/${id}`, { method: "DELETE" });
         tasks = tasks.filter(task => task.id !== id);
         setConnection(true);
         render();
-        notify("Task removed.");
+        notify("Task removed.", { label: "Undo", run: async () => {
+          try {
+            const restored = await request("/tasks", { method: "POST", body: JSON.stringify({ title: removed.title, done: removed.done }) });
+            tasks.push(restored);
+            setConnection(true);
+            render();
+            notify("Task restored.");
+          } catch (error) { notify(error.message); }
+        }});
       } catch (error) {
         setConnection(false);
         notify(error.message);
@@ -373,6 +441,25 @@
       activeFilter = button.dataset.filter;
       render();
     }));
+
+    searchInput.addEventListener("input", render);
+    document.querySelectorAll("[data-suggestion]").forEach(button => button.addEventListener("click", () => {
+      input.value = button.dataset.suggestion;
+      input.focus();
+      input.setSelectionRange(input.value.length, input.value.length);
+    }));
+    document.addEventListener("keydown", event => {
+      if (event.key === "/" && !["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) {
+        event.preventDefault();
+        searchInput.focus();
+      }
+      if (event.key === "Escape" && document.activeElement === searchInput) {
+        searchInput.value = "";
+        searchInput.blur();
+        render();
+      }
+    });
+    document.querySelector("#today-label").textContent = new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric" }).format(new Date());
 
     loadTasks();
   </script>

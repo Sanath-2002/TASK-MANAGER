@@ -17,7 +17,7 @@ npm install
 npm run dev
 ```
 
-Open the local URL printed by Vite (usually `http://localhost:5173`). No login is needed. Try adding, editing, completing, filtering, and deleting a task, then refresh to confirm it remains.
+Open the local URL printed by Vite (usually `http://localhost:5173`). No login is needed. Try the quick-start suggestions, add/edit/complete/delete a task, search (`/` focuses search), use the filters, try Undo after deleting, and refresh to confirm the list remains.
 
 ## Deploy to Vercel
 
