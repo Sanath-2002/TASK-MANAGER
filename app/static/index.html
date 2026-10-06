@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7fb">
+  <title>Taskboard — a little more done</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #19233b;
+      --muted: #74809a;
+      --line: #e8ebf2;
+      --paper: #fff;
+      --accent: #5758d6;
+      --accent-dark: #4546be;
+      --mint: #e7f7ef;
+      --shadow: 0 24px 70px #26345b14, 0 4px 14px #26345b0b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 52px 20px 72px;
+      background: radial-gradient(ellipse at 16% 4%, #e9eaff 0, transparent 32%),
+                  radial-gradient(ellipse at 90% 92%, #e4f7ef 0, transparent 28%), #f5f7fb;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    .shell { width: min(100%, 740px); margin: 0 auto; }
+    .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+    .brand-mark {
+      display: grid; width: 42px; height: 42px; place-items: center; border-radius: 14px;
+      background: var(--accent); color: white; box-shadow: 0 8px 18px #5758d64a;
+    }
+    .brand-mark svg { width: 23px; height: 23px; }
+    .brand-name { font-size: 16px; font-weight: 760; letter-spacing: -.04em; }
+    .brand-note { margin-top: 2px; color: var(--muted); font-size: 12px; }
+    .panel { overflow: hidden; border: 1px solid #ffffffd9; border-radius: 24px; background: var(--paper); box-shadow: var(--shadow); }
+    .intro { padding: 34px 38px 25px; }
+    .eyebrow { margin: 0 0 9px; color: var(--accent); font-size: 11px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(27px, 5vw, 36px); letter-spacing: -.055em; line-height: 1.12; }
+    .subtitle { margin: 10px 0 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+    .progress-card { display: flex; align-items: center; gap: 15px; margin: 25px 38px 0; padding: 15px 17px; border: 1px solid #e7f1eb; border-radius: 15px; background: #f6fbf8; }
+    .progress-icon { display: grid; flex: 0 0 38px; width: 38px; height: 38px; place-items: center; border-radius: 12px; background: var(--mint); color: #2d9965; }
+    .progress-icon svg { width: 19px; }
+    .progress-copy { min-width: 0; flex: 1; }
+    .progress-title { font-size: 13px; font-weight: 720; }
+    .progress-caption { margin-top: 3px; color: var(--muted); font-size: 12px; }
+    .progress-count { color: #31875f; font-size: 13px; font-weight: 760; white-space: nowrap; }
+    .add-form { display: flex; gap: 10px; padding: 24px 38px 22px; }
+    .add-form input { min-width: 0; flex: 1; height: 48px; padding: 0 15px; border: 1px solid var(--line); border-radius: 12px; outline: none; background: #fbfcfe; color: var(--ink); font-size: 14px; transition: border .15s, box-shadow .15s; }
+    .add-form input::placeholder { color: #9aa3b5; }
+    .add-form input:focus, .edit-input:focus { border-color: #9999ef; box-shadow: 0 0 0 3px #5758d61c; }
+    .primary { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 46px; padding: 0 16px; border: 0; border-radius: 12px; background: var(--accent); color: white; font-size: 13px; font-weight: 700; transition: background .15s, transform .15s; }
+    .primary:hover { transform: translateY(-1px); background: var(--accent-dark); }
+    .primary svg { width: 16px; height: 16px; }
+    .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 38px 14px; }
+    .list-label { color: #69758d; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .filters { display: flex; gap: 4px; padding: 4px; border-radius: 10px; background: #f3f5f9; }
+    .filter { padding: 7px 11px; border: 0; border-radius: 7px; background: transparent; color: #7b8498; font-size: 11px; font-weight: 700; }
+    .filter[aria-pressed="true"] { background: white; color: var(--ink); box-shadow: 0 1px 4px #26345b18; }
+    .task-list { margin: 0; padding: 0 24px 8px; list-style: none; }
+    .task-row { display: flex; align-items: center; gap: 12px; min-height: 65px; padding: 10px 14px; border-top: 1px solid #f0f2f6; }
+    .check-wrap { position: relative; display: grid; flex: 0 0 22px; width: 22px; height: 22px; place-items: center; }
+    .check-wrap input { position: absolute; width: 22px; height: 22px; margin: 0; opacity: 0; cursor: pointer; }
+    .checkmark { display: grid; width: 20px; height: 20px; place-items: center; border: 1.5px solid #cbd1de; border-radius: 7px; color: transparent; transition: .15s; }
+    .check-wrap input:focus-visible + .checkmark { outline: 3px solid #5758d644; outline-offset: 2px; }
+    .check-wrap input:checked + .checkmark { border-color: #51b683; background: #51b683; color: white; }
+    .checkmark svg { width: 13px; }
+    .task-text { min-width: 0; flex: 1; overflow-wrap: anywhere; font-size: 14px; font-weight: 570; line-height: 1.45; }
+    .task-row.done .task-text { color: #9ba4b4; text-decoration: line-through; }
+    .task-actions { display: flex; gap: 3px; opacity: 0; transition: opacity .15s; }
+    .task-row:hover .task-actions, .task-row:focus-within .task-actions { opacity: 1; }
+    .icon-button { display: grid; width: 34px; height: 34px; place-items: center; border: 0; border-radius: 9px; background: transparent; color: #7d879a; }
+    .icon-button:hover { background: #f2f3f8; color: var(--accent); }
+    .icon-button.delete:hover { background: #fff0f0; color: #d35b5b; }
+    .icon-button svg { width: 16px; height: 16px; }
+    .edit-form { display: flex; flex: 1; gap: 7px; }
+    .edit-input { min-width: 0; flex: 1; height: 38px; padding: 0 10px; border: 1px solid #dfe3eb; border-radius: 9px; outline: none; font-size: 13px; }
+    .save-edit { padding: 0 11px; border: 0; border-radius: 8px; background: var(--accent); color: white; font-size: 12px; font-weight: 700; }
+    .empty { display: grid; justify-items: center; padding: 38px 20px 46px; color: var(--muted); text-align: center; }
+    .empty-icon { display: grid; width: 48px; height: 48px; margin-bottom: 12px; place-items: center; border-radius: 16px; background: #f0f1ff; color: var(--accent); }
+    .empty-icon svg { width: 23px; }
+    .empty strong { color: #38445c; font-size: 13px; }
+    .empty span { margin-top: 5px; font-size: 12px; }
+    .footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 38px 19px; border-top: 1px solid #f0f2f6; color: #929bad; font-size: 11px; }
+    .api-status { display: inline-flex; align-items: center; gap: 6px; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #50b882; box-shadow: 0 0 0 3px #50b88220; }
+    .api-status.error .status-dot { background: #df6b68; box-shadow: 0 0 0 3px #df6b6820; }
+    .toast { position: fixed; right: 22px; bottom: 22px; max-width: min(360px, calc(100vw - 44px)); padding: 12px 16px; border: 1px solid #ffffff3d; border-radius: 12px; background: #202a42; color: white; box-shadow: 0 10px 35px #18213a35; font-size: 13px; opacity: 0; pointer-events: none; transform: translateY(8px); transition: .2s; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    @media (max-width: 560px) {
+      body { padding: 28px 12px 50px; }
+      .brand { margin: 0 5px 19px; }
+      .intro { padding: 28px 22px 20px; }
+      .progress-card { margin: 20px 22px 0; }
+      .add-form { gap: 8px; padding: 20px 22px; }
+      .add-form input { height: 45px; padding: 0 11px; font-size: 13px; }
+      .primary { min-height: 44px; padding: 0 12px; }
+      .toolbar { align-items: flex-start; flex-direction: column; padding: 0 22px 13px; }
+      .task-list { padding-right: 13px; padding-left: 13px; }
+      .task-actions { opacity: 1; }
+      .footer { padding-right: 22px; padding-left: 22px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.2 4.2L19.5 6.8" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div><div class="brand-name">Taskboard</div><div class="brand-note">A little more done, every day.</div></div>
+    </header>
+
+    <section class="panel" aria-labelledby="page-title">
+      <div class="intro">
+        <p class="eyebrow">Your space, your pace</p>
+        <h1 id="page-title">Make room for what matters.</h1>
+        <p class="subtitle">Keep your day moving, one small win at a time.</p>
+      </div>
+
+      <section class="progress-card" aria-live="polite">
+        <div class="progress-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.2 4.2L19.5 6.8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="progress-copy"><div class="progress-title" id="progress-title">A fresh start</div><div class="progress-caption" id="progress-caption">Add a task and get going.</div></div>
+        <div class="progress-count" id="progress-count">0 / 0 done</div>
+      </section>
+
+      <form class="add-form" id="add-form">
+        <input id="new-task" name="title" maxlength="100" placeholder="What would you like to get done?" autocomplete="off" required aria-label="New task title">
+        <button class="primary" type="submit">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+          Add task
+        </button>
+      </form>
+
+      <div class="toolbar">
+        <div class="list-label">Your tasks</div>
+        <div class="filters" role="group" aria-label="Filter tasks">
+          <button class="filter" type="button" data-filter="all" aria-pressed="true">All</button>
+          <button class="filter" type="button" data-filter="active" aria-pressed="false">To do</button>
+          <button class="filter" type="button" data-filter="done" aria-pressed="false">Done</button>
+        </div>
+      </div>
+
+      <ul class="task-list" id="task-list" aria-live="polite"></ul>
+      <div class="footer">
+        <span id="task-summary">Loading your tasks…</span>
+        <span class="api-status" id="api-status"><span class="status-dot"></span><span id="api-status-text">Connecting</span></span>
+      </div>
+    </section>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const list = document.querySelector("#task-list");
+    const form = document.querySelector("#add-form");
+    const input = document.querySelector("#new-task");
+    const toast = document.querySelector("#toast");
+    const filterButtons = [...document.querySelectorAll(".filter")];
+    let tasks = [];
+    let activeFilter = "all";
+    let toastTimer;
+
+    const icons = {
+      edit: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m14 5 5 5M4 20l4.2-.9L19 8.3a2.1 2.1 0 0 0-3-3L5.2 16.1 4 20Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      delete: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M10 11v6m4-6v6M6 7l1 13h10l1-13M9 7V4h6v3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      check: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12.5 4.2 4.2L19.5 6.8" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      empty: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M8 3v4m8-4v4M4 9h16m-11 5h6m-6 3h3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>'
+    };
+
+    async function request(path, options = {}) {
+      const response = await fetch(path, {
+        ...options,
+        headers: { "Content-Type": "application/json", ...options.headers }
+      });
+      if (!response.ok) {
+        const detail = await response.json().catch(() => ({}));
+        throw new Error(detail.detail || `Request failed (${response.status})`);
+      }
+      return response.status === 204 ? null : response.json();
+    }
+
+    function notify(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
+    }
+
+    function setConnection(connected) {
+      const indicator = document.querySelector("#api-status");
+      indicator.classList.toggle("error", !connected);
+      document.querySelector("#api-status-text").textContent = connected ? "All synced" : "Connection issue";
+    }
+
+    function render() {
+      const completeCount = tasks.filter(task => task.done).length;
+      const remaining = tasks.length - completeCount;
+      document.querySelector("#progress-count").textContent = `${completeCount} / ${tasks.length} done`;
+      document.querySelector("#progress-title").textContent = tasks.length === 0 ? "A fresh start" : remaining === 0 ? "Look at you go!" : "You're making progress";
+      document.querySelector("#progress-caption").textContent = tasks.length === 0 ? "Add a task and get going." : remaining === 0 ? "Everything on your list is complete." : `${remaining} ${remaining === 1 ? "task" : "tasks"} left to tackle.`;
+      document.querySelector("#task-summary").textContent = `${tasks.length} ${tasks.length === 1 ? "task" : "tasks"} on your list`;
+
+      filterButtons.forEach(button => button.setAttribute("aria-pressed", String(button.dataset.filter === activeFilter)));
+      const visibleTasks = tasks.filter(task => activeFilter === "all" || (activeFilter === "done" ? task.done : !task.done));
+      list.replaceChildren();
+
+      if (visibleTasks.length === 0) {
+        const empty = document.createElement("li");
+        empty.className = "empty";
+        const icon = document.createElement("div");
+        icon.className = "empty-icon";
+        icon.innerHTML = icons.empty;
+        const heading = document.createElement("strong");
+        const message = document.createElement("span");
+        if (tasks.length === 0) {
+          heading.textContent = "Your list is ready when you are";
+          message.textContent = "Add your first task above to get started.";
+        } else if (activeFilter === "done") {
+          heading.textContent = "Nothing completed just yet";
+          message.textContent = "Finish a task and it will show up here.";
+        } else {
+          heading.textContent = "You're all caught up";
+          message.textContent = "Everything is done. Enjoy the breathing room.";
+        }
+        empty.append(icon, heading, message);
+        list.append(empty);
+        return;
+      }
+
+      visibleTasks.forEach(task => list.append(createTaskRow(task)));
+    }
+
+    function createTaskRow(task) {
+      const row = document.createElement("li");
+      row.className = `task-row${task.done ? " done" : ""}`;
+
+      const check = document.createElement("label");
+      check.className = "check-wrap";
+      check.setAttribute("aria-label", task.done ? `Mark ${task.title} as to do` : `Mark ${task.title} as done`);
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = task.done;
+      checkbox.addEventListener("change", () => updateTask(task.id, { title: task.title, done: checkbox.checked }));
+      const mark = document.createElement("span");
+      mark.className = "checkmark";
+      mark.innerHTML = icons.check;
+      check.append(checkbox, mark);
+      row.append(check);
+
+      const title = document.createElement("span");
+      title.className = "task-text";
+      title.textContent = task.title;
+      row.append(title);
+
+      const actions = document.createElement("div");
+      actions.className = "task-actions";
+      const edit = document.createElement("button");
+      edit.className = "icon-button";
+      edit.type = "button";
+      edit.setAttribute("aria-label", `Edit ${task.title}`);
+      edit.title = "Edit task";
+      edit.innerHTML = icons.edit;
+      edit.addEventListener("click", () => startEditing(row, task));
+
+      const remove = document.createElement("button");
+      remove.className = "icon-button delete";
+      remove.type = "button";
+      remove.setAttribute("aria-label", `Delete ${task.title}`);
+      remove.title = "Delete task";
+      remove.innerHTML = icons.delete;
+      remove.addEventListener("click", () => deleteTask(task.id));
+      actions.append(edit, remove);
+      row.append(actions);
+      return row;
+    }
+
+    function startEditing(row, task) {
+      const editForm = document.createElement("form");
+      editForm.className = "edit-form";
+      const editInput = document.createElement("input");
+      editInput.className = "edit-input";
+      editInput.value = task.title;
+      editInput.maxLength = 100;
+      editInput.required = true;
+      editInput.setAttribute("aria-label", "Edit task title");
+      const save = document.createElement("button");
+      save.className = "save-edit";
+      save.textContent = "Save";
+      editForm.append(editInput, save);
+      row.replaceChildren(editForm);
+      editInput.focus();
+      editInput.select();
+      editForm.addEventListener("submit", async event => {
+        event.preventDefault();
+        const title = editInput.value.trim();
+        if (!title) return;
+        await updateTask(task.id, { title, done: task.done });
+      });
+      editInput.addEventListener("keydown", event => {
+        if (event.key === "Escape") render();
+      });
+    }
+
+    async function updateTask(id, values) {
+      try {
+        const updated = await request(`/tasks/${id}`, { method: "PUT", body: JSON.stringify(values) });
+        tasks = tasks.map(task => task.id === id ? updated : task);
+        setConnection(true);
+        render();
+      } catch (error) {
+        setConnection(false);
+        notify(error.message);
+        await loadTasks(false);
+      }
+    }
+
+    async function deleteTask(id) {
+      try {
+        await request(`/tasks/${id}`, { method: "DELETE" });
+        tasks = tasks.filter(task => task.id !== id);
+        setConnection(true);
+        render();
+        notify("Task removed.");
+      } catch (error) {
+        setConnection(false);
+        notify(error.message);
+      }
+    }
+
+    async function loadTasks(showError = true) {
+      try {
+        tasks = await request("/tasks");
+        setConnection(true);
+        render();
+      } catch (error) {
+        setConnection(false);
+        document.querySelector("#task-summary").textContent = "Couldn't load your tasks";
+        if (showError) notify("The task API could not be reached. Please refresh and try again.");
+      }
+    }
+
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+      const title = input.value.trim();
+      if (!title) return;
+      const button = form.querySelector("button");
+      button.disabled = true;
+      try {
+        const created = await request("/tasks", { method: "POST", body: JSON.stringify({ title }) });
+        tasks.push(created);
+        input.value = "";
+        activeFilter = "all";
+        setConnection(true);
+        render();
+        input.focus();
+      } catch (error) {
+        setConnection(false);
+        notify(error.message);
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    filterButtons.forEach(button => button.addEventListener("click", () => {
+      activeFilter = button.dataset.filter;
+      render();
+    }));
+
+    loadTasks();
+  </script>
+</body>
+</html>

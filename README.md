@@ -1,6 +1,6 @@
 # DevOps Task API
 
-A small Python REST API packaged in Docker and deployed to AWS EC2 from GitHub Actions. This portfolio project demonstrates how a code change moves through tests, a container registry, an EC2 host, and basic monitoring. The in-memory task store is intentionally simple; tasks reset when the process restarts.
+A beginner-friendly task manager with a browser interface and a Python REST API, packaged in Docker and deployable to AWS EC2 from GitHub Actions. Add, edit, complete, filter, and delete tasks from the page. The in-memory task store is intentionally simple; tasks reset when the process restarts. This portfolio project also demonstrates how a code change moves through tests, a container registry, an EC2 host, and basic monitoring.
 
 [![CI and deploy](https://github.com/OWNER/REPOSITORY/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/OWNER/REPOSITORY/actions/workflows/ci-cd.yml)
 
@@ -13,7 +13,7 @@ flowchart LR
     Dev[Developer] --> GitHub[GitHub repository]
     GitHub --> Actions[GitHub Actions: lint and test]
     Actions -->|main branch deploy| ECR[Amazon ECR]
-    ECR --> EC2[Amazon EC2: Docker API]
+    ECR --> EC2[Amazon EC2: Docker task manager]
     EC2 --> CW[CloudWatch Logs and alarm]
     CW --> SNS[SNS email alert]
     Terraform[Terraform: infrastructure definition] --> ECR
@@ -26,7 +26,7 @@ flowchart LR
 
 | Area | Tools |
 | --- | --- |
-| API | Python 3.11, FastAPI, Pydantic |
+| Web app and API | HTML/CSS/JavaScript, Python 3.11, FastAPI, Pydantic |
 | Quality | pytest, HTTPX, Ruff |
 | API exploration | Postman Collection v2.1 |
 | Containers | Docker, Docker Compose |
@@ -36,8 +36,8 @@ flowchart LR
 
 ## Features
 
-- `GET /health` returns `{"status":"ok"}`.
-- Create, list, fetch, update, and delete tasks at `/tasks`.
+- Browser-based task manager at `/` with an add form, inline editing, complete toggle, and All/To do/Done filters.
+- `GET /health` returns `{"status":"ok"}`; the JSON API supports create, list, fetch, update, and delete at `/tasks`.
 - Pydantic validates task titles (1–100 characters); `done` defaults to `false`.
 - Isolated endpoint tests, a non-root container, container health check, and deployment smoke test.
 - SSH ingress is restricted by your supplied CIDR; HTTP is public for the demo.
@@ -68,7 +68,7 @@ make run
 curl http://localhost:8000/health
 ```
 
-The interactive API documentation is at `http://localhost:8000/docs`. The API uses memory for storage, so it is for demos and learning rather than durable production data.
+Open `http://localhost:8000` for the task manager. The interactive API documentation is at `http://localhost:8000/docs`. The API uses memory for storage, so tasks reset when the app restarts; it is for demos and learning rather than durable production data.
 
 ### Docker
 

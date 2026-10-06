@@ -1,6 +1,9 @@
 """A small in-memory task API for learning and portfolio demonstrations."""
 
+from pathlib import Path
+
 from fastapi import FastAPI, HTTPException, Response, status
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 app = FastAPI(title="DevOps Task API", version="1.0.0")
@@ -21,6 +24,13 @@ class Task(TaskCreate):
 
 _tasks: dict[int, Task] = {}
 _next_id = 1
+
+
+@app.get("/", include_in_schema=False)
+def home() -> FileResponse:
+    """Serve the browser-based task manager."""
+
+    return FileResponse(Path(__file__).parent / "static" / "index.html")
 
 
 def reset_tasks() -> None:

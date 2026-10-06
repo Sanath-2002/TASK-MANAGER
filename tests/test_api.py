@@ -21,6 +21,13 @@ def test_health():
     assert response.json() == {"status": "ok"}
 
 
+def test_home_page_serves_task_manager():
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "text/html" in response.headers["content-type"]
+    assert "Taskboard" in response.text
+
+
 def test_create_and_list_tasks():
     created = client.post("/tasks", json={"title": "Learn Docker"})
     assert created.status_code == 201
