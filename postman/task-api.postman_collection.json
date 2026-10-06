@@ -1,0 +1,44 @@
+{
+  "info": {
+    "_postman_id": "d89017f5-8652-4a13-95b6-f354f73fc44c",
+    "name": "DevOps Task API",
+    "description": "Beginner-friendly API checks. Run the requests in order so taskId is created and reused.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8000" },
+    { "key": "taskId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/health" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('returns 200', () => pm.response.to.have.status(200));", "pm.test('health is ok', () => pm.expect(pm.response.json().status).to.eql('ok')); "] } }]
+    },
+    {
+      "name": "Create task",
+      "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"title\": \"Learn Terraform\",\n  \"done\": false\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/tasks" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('returns 201', () => pm.response.to.have.status(201));", "const task = pm.response.json();", "pm.test('has a task id and title', () => { pm.expect(task.id).to.be.a('number'); pm.expect(task.title).to.eql('Learn Terraform'); });", "pm.collectionVariables.set('taskId', task.id);"] } }]
+    },
+    {
+      "name": "List tasks",
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/tasks" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('returns 200 and a list', () => { pm.response.to.have.status(200); pm.expect(pm.response.json()).to.be.an('array'); });"] } }]
+    },
+    {
+      "name": "Get created task",
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/tasks/{{taskId}}" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('returns the created task', () => { pm.response.to.have.status(200); pm.expect(pm.response.json().id).to.eql(Number(pm.collectionVariables.get('taskId'))); });"] } }]
+    },
+    {
+      "name": "Update created task",
+      "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"title\": \"Learn Terraform and CI\",\n  \"done\": true\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/tasks/{{taskId}}" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('updates the task', () => { pm.response.to.have.status(200); pm.expect(pm.response.json().done).to.eql(true); });"] } }]
+    },
+    {
+      "name": "Delete created task",
+      "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/tasks/{{taskId}}" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('deletes the task with no content', () => pm.response.to.have.status(204));"] } }]
+    }
+  ]
+}
