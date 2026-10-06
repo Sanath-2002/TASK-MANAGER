@@ -1,0 +1,20 @@
+{
+  "name": "taskboard-web",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.117.1"
+  },
+  "devDependencies": {
+    "vite": "8.1.0"
+  }
+}

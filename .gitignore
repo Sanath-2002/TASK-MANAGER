@@ -1,5 +1,8 @@
 .venv/
 venv/
+node_modules/
+dist/
+.vercel/
 __pycache__/
 *.py[cod]
 .pytest_cache/
@@ -8,5 +11,6 @@ __pycache__/
 *.tfstate*
 *.tfvars
 !.tfvars.example
-.env
+.env*
+!.env.example
 .DS_Store

@@ -42,6 +42,10 @@ flowchart LR
 - Isolated endpoint tests, a non-root container, container health check, and deployment smoke test.
 - SSH ingress is restricted by your supplied CIDR; HTTP is public for the demo.
 
+## Host a no-login web version
+
+For a frontend hosted on Vercel with durable database storage, see [web/README.md](web/README.md). That version uses Supabase Postgres with a background guest identity, so there is no login screen and each browser has a private task list. It is a separate static frontend; the FastAPI, Docker, and AWS portfolio path above remains available.
+
 ## Prerequisites
 
 - Python 3.11, Git, and Make (or run the equivalent commands below).

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f7fb" />
+    <title>Taskboard — a little more done</title>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="brand">
+        <div class="brand-mark" aria-hidden="true">✓</div>
+        <div><div class="brand-name">Taskboard</div><div class="brand-note">A little more done, every day.</div></div>
+      </header>
+
+      <section class="panel" aria-labelledby="page-title">
+        <div class="intro">
+          <p class="eyebrow">Your space, your pace</p>
+          <h1 id="page-title">Make room for what matters.</h1>
+          <p class="subtitle">Keep your day moving, one small win at a time.</p>
+        </div>
+
+        <section class="progress-card" aria-live="polite">
+          <div class="progress-icon" aria-hidden="true">✓</div>
+          <div class="progress-copy"><div class="progress-title" id="progress-title">A fresh start</div><div class="progress-caption" id="progress-caption">Add a task and get going.</div></div>
+          <div class="progress-count" id="progress-count">0 / 0 done</div>
+        </section>
+
+        <form class="add-form" id="add-form">
+          <input id="new-task" name="title" maxlength="100" placeholder="What would you like to get done?" autocomplete="off" required aria-label="New task title" />
+          <button class="primary" type="submit"><span aria-hidden="true">＋</span> Add task</button>
+        </form>
+
+        <div class="toolbar">
+          <div class="list-label">Your tasks</div>
+          <div class="filters" role="group" aria-label="Filter tasks">
+            <button class="filter" type="button" data-filter="all" aria-pressed="true">All</button>
+            <button class="filter" type="button" data-filter="active" aria-pressed="false">To do</button>
+            <button class="filter" type="button" data-filter="done" aria-pressed="false">Done</button>
+          </div>
+        </div>
+
+        <ul class="task-list" id="task-list" aria-live="polite"></ul>
+        <div class="footer">
+          <span id="task-summary">Connecting to your private task list…</span>
+          <span class="api-status" id="api-status"><span class="status-dot"></span><span id="api-status-text">Connecting</span></span>
+        </div>
+      </section>
+      <p class="privacy-note">No signup needed. Your list belongs to this browser.</p>
+    </main>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
