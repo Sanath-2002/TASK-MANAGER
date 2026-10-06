@@ -269,7 +269,6 @@ filterButtons.forEach(button => button.addEventListener("click", () => {
 }));
 
 searchInput.addEventListener("input", render);
-document.querySelectorAll("#sidebar-add, #heading-add").forEach(button => button.addEventListener("click", () => input.focus()));
 document.addEventListener("keydown", event => {
   if (event.key === "/" && !["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) {
     event.preventDefault();
