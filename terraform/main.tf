@@ -87,11 +87,17 @@ resource "aws_iam_instance_profile" "task_api" {
 }
 
 resource "aws_instance" "task_api" {
-  ami                    = data.aws_ssm_parameter.al2023_ami.value
-  instance_type          = var.instance_type
-  key_name               = aws_key_pair.task_api.key_name
-  vpc_security_group_ids = [aws_security_group.task_api.id]
-  iam_instance_profile   = aws_iam_instance_profile.task_api.name
+  ami                         = data.aws_ssm_parameter.al2023_ami.value
+  instance_type               = var.instance_type
+  associate_public_ip_address = true
+  key_name                    = aws_key_pair.task_api.key_name
+  vpc_security_group_ids      = [aws_security_group.task_api.id]
+  iam_instance_profile        = aws_iam_instance_profile.task_api.name
+
+  depends_on = [
+    aws_iam_role_policy_attachment.ecr_read_only,
+    aws_iam_role_policy.cloudwatch_logs
+  ]
 
   user_data = <<-USERDATA
     #!/bin/bash
