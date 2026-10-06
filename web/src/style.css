@@ -193,3 +193,106 @@ h1 { font-size: clamp(30px, 3vw, 36px); letter-spacing: -.05em; line-height: 1.1
   .task-meta { gap: 4px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+/* Warm paper, deep evergreen, and a single citrus accent give the workspace
+   more character while keeping task content calm and easy to scan. */
+:root {
+  color: #202820;
+  background: #f4f3ed;
+  --muted: #788277;
+  --line: #e5e7de;
+  --accent: #637c50;
+}
+body { background: #f4f3ed; color: #202820; }
+.app-shell { grid-template-columns: 258px minmax(0, 1fr); }
+.sidebar {
+  padding: 27px 16px 16px;
+  border-right: 1px solid #26372e;
+  background: linear-gradient(165deg, #26372e 0%, #1d2b24 78%);
+  color: #edf1e9;
+}
+.brand { gap: 12px; padding: 0 9px; color: #f4f4ec; }
+.brand-mark { width: 35px; height: 35px; border-radius: 11px; background: #d9ed78; color: #233126; box-shadow: 0 4px 14px #141f1938; }
+.brand-name { font-size: 17px; letter-spacing: -.045em; }
+.nav-label { margin-top: 35px; color: #94a396; font-size: 10px; letter-spacing: .15em; }
+.nav-filters { gap: 5px; }
+.nav-filter { height: 41px; gap: 11px; border-radius: 9px; color: #c2cdc3; font-size: 13px; }
+.nav-filter:hover { background: #ffffff0e; color: #fff; transform: translateX(2px); }
+.nav-filter[aria-pressed="true"] { background: #d9ed78; color: #273529; font-weight: 700; box-shadow: 0 5px 14px #101a1530; }
+.nav-icon { color: #91a094; }
+.nav-filter[aria-pressed="true"] .nav-icon,
+.nav-filter[aria-pressed="true"] .filter-count { color: #40513b; }
+.filter-count { color: #9aaa9b; }
+.project-heading { margin-top: 32px; }
+.project-heading .nav-label { color: #94a396; }
+.subtle-button { color: #b2beb3; }
+.subtle-button:hover { background: #ffffff12; color: #d9ed78; }
+.project-filter { height: 38px; color: #c2cdc3; font-size: 13px; }
+.project-filter:hover, .project-filter.selected { background: #ffffff10; color: #f0f3eb; }
+.project-filter.selected .project-dot { border-color: #d9ed78; background: #d9ed78; }
+.project-dot { border-color: #8e9f91; }
+.project-actions .icon-button { color: #bdc7bd; }
+.sidebar-bottom { padding: 15px 9px 6px; border-color: #ffffff19; color: #aebcaf; }
+.api-status { color: #c2cdc3; }
+.status-dot { background: #d9ed78; box-shadow: 0 0 0 3px #d9ed7822; }
+.api-status.error .status-dot { background: #f08c79; box-shadow: 0 0 0 3px #f08c7922; }
+.main-area { background: radial-gradient(ellipse at 83% 0%, #e9ecdc 0%, transparent 34%), #f4f3ed; }
+.content { width: min(100%, 1080px); padding: 58px 58px 90px; }
+.page-heading { margin-bottom: 31px; }
+h1 { color: #202820; font-size: clamp(34px, 3.2vw, 42px); font-weight: 740; letter-spacing: -.055em; }
+.add-form { min-height: 58px; gap: 13px; margin-bottom: 28px; padding: 7px 8px 7px 17px; border-color: #e0e3d9; border-radius: 12px; background: #fff; box-shadow: 0 5px 18px #2936270b; }
+.add-form:focus-within { border-color: #9cad83; box-shadow: 0 0 0 4px #637c5018, 0 8px 22px #2936270b; }
+.add-icon { color: #71875c; font-size: 21px; }
+.add-form input { color: #283228; font-size: 15px; }
+.add-form input::placeholder { color: #a0a89d; }
+.form-hint { color: #99a195; font-size: 11px; }
+.primary { min-height: 41px; padding: 0 16px; border-color: #526a43; border-radius: 9px; background: #526a43; color: #fff; font-size: 13px; }
+.primary:hover { border-color: #3f5632; background: #3f5632; box-shadow: 0 6px 16px #40563430; }
+.task-section { overflow: hidden; border-color: #e4e6dd; border-radius: 15px; background: #fff; box-shadow: 0 8px 26px #2936270b; }
+.list-toolbar { min-height: 76px; padding: 15px 21px; border-color: #eceee7; }
+#task-summary { color: #849080; font-size: 12px; }
+.search-wrap { width: min(250px, 44%); height: 38px; border-color: #e6e9e1; border-radius: 9px; background: #fafbf8; }
+.search-wrap:focus-within { border-color: #aab995; box-shadow: 0 0 0 3px #637c5014; }
+.search-wrap input { font-size: 12px; }
+.search-wrap input::placeholder { color: #9aa396; }
+.search-wrap kbd { border-color: #e4e7de; border-radius: 4px; background: #fff; color: #90998d; }
+.task-list { padding: 0 21px; }
+.task-row { min-height: 68px; gap: 13px; padding: 10px 7px; border-color: #edf0e9; }
+.task-row:hover { background: #fbfcf8; }
+.checkmark { width: 19px; height: 19px; border-color: #b9c1b3; border-radius: 6px; }
+.check-wrap input:checked + .checkmark { border-color: #6b8852; background: #6b8852; }
+.task-text, .task-title { color: #303a2f; font-size: 14px; }
+.task-title:hover { color: #526a43; }
+.task-row.done .task-title { color: #939b8f; }
+.task-badge { border-radius: 6px; background: #f0f2eb; color: #697564; }
+.due-badge { background: #eef2e8; color: #596c4c; }
+.due-badge.overdue, .priority-badge.high { background: #fff0e9; color: #b5553e; }
+.priority-badge.medium { background: #fbf2df; color: #956a2f; }
+.priority-badge.low { background: #edf3e7; color: #5c754b; }
+.empty-state { min-height: 205px; color: #788477; }
+.empty-icon { width: 44px; height: 44px; flex-basis: 44px; border-radius: 12px; background: #edf1e6; color: #667e50; }
+.empty-state strong { color: #344033; font-size: 13px; }
+.empty-state span { color: #839080; font-size: 12px; }
+.icon-button:hover { background: #eff2e9; color: #526a43; }
+.icon-button.delete:hover { background: #fff0e9; color: #b5553e; }
+.editor-dialog { border-color: #e4e6dd; border-radius: 16px; box-shadow: 0 26px 90px #1d2b2440; }
+.editor-dialog::backdrop { background: #19251e80; backdrop-filter: blur(4px); }
+.field-input { border-color: #dfe4d9; border-radius: 9px; }
+.field-input:focus { border-color: #9cad83; box-shadow: 0 0 0 3px #637c5018; }
+.secondary { border-color: #dfe4d9; border-radius: 8px; }
+.secondary:hover { background: #f5f6f1; }
+:where(button, a, input, textarea, select):focus-visible { outline-color: #71875c; }
+@media (max-width: 760px) {
+  .sidebar { padding: 16px 16px 12px; }
+  .nav-filter { height: 35px; }
+  .project-heading { margin-top: 15px; }
+  .main-area { background: #f4f3ed; }
+  .content { padding: 34px 18px 56px; }
+}
+@media (max-width: 480px) {
+  .content { padding: 28px 14px 44px; }
+  .add-form { min-height: 54px; }
+  .add-form .primary { padding: 0 12px; }
+  .list-toolbar { padding: 14px; }
+  .task-list { padding: 0 11px; }
+}
