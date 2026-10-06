@@ -40,16 +40,9 @@ function setConnection(connected, message = connected ? "Saved" : "Connection is
 function render() {
   const completeCount = tasks.filter(task => task.done).length;
   const remaining = tasks.length - completeCount;
-  const progress = tasks.length ? Math.round((completeCount / tasks.length) * 100) : 0;
-  document.querySelector("#progress-count").textContent = `${completeCount} / ${tasks.length} done`;
-  document.querySelector("#progress-bar").style.width = `${progress}%`;
-  document.querySelector(".progress-track").setAttribute("aria-valuenow", progress);
-  document.querySelector("#progress-title").textContent = "Task completion";
-  document.querySelector("#progress-caption").textContent = tasks.length ? `${completeCount} completed · ${remaining} remaining` : "No completed tasks";
   document.querySelector("#count-all").textContent = tasks.length;
   document.querySelector("#count-active").textContent = remaining;
   document.querySelector("#count-done").textContent = completeCount;
-  document.querySelector("#today-label").textContent = new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" }).format(new Date());
   const filterNames = { all: "All tasks", active: "To do", done: "Completed" };
   document.querySelector("#list-heading").textContent = filterNames[activeFilter];
 

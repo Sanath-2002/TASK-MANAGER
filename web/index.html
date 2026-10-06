@@ -19,23 +19,14 @@
           <button class="filter nav-filter" type="button" data-filter="active" aria-pressed="false"><span class="nav-icon">○</span><span>To do</span><span class="filter-count" id="count-active">0</span></button>
           <button class="filter nav-filter" type="button" data-filter="done" aria-pressed="false"><span class="nav-icon">✓</span><span>Completed</span><span class="filter-count" id="count-done">0</span></button>
         </nav>
-        <div class="sidebar-bottom"><span class="connection-dot"></span><span>No account required</span></div>
+        <div class="sidebar-bottom"><span class="api-status" id="api-status"><span class="status-dot"></span><span id="api-status-text">Connecting</span></span></div>
       </aside>
 
       <div class="main-area">
-        <header class="topbar">
-          <div class="breadcrumbs"><span>Workspace</span><span class="crumb-divider">/</span><strong>Tasks</strong></div>
-          <div class="topbar-status"><span class="api-status" id="api-status"><span class="status-dot"></span><span id="api-status-text">Connecting</span></span></div>
-        </header>
         <main class="content">
           <div class="page-heading">
-            <div><p class="today-label" id="today-label"></p><h1>My tasks</h1><p class="page-description">Add, organize, and complete your tasks.</p></div>
+            <div><h1>My tasks</h1></div>
           </div>
-
-          <section class="progress-card" aria-label="Task completion summary">
-            <div class="progress-heading"><span class="progress-title" id="progress-title">Task completion</span><span class="progress-count" id="progress-count">0 / 0</span></div>
-            <div class="progress-bottom"><span class="progress-caption" id="progress-caption">No completed tasks</span><div class="progress-track" role="progressbar" aria-label="Task completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progress-bar"></span></div></div>
-          </section>
 
           <form class="add-form" id="add-form">
             <span class="add-icon" aria-hidden="true">＋</span>
