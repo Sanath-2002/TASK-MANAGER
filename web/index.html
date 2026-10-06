@@ -13,31 +13,34 @@
           <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.2 4.2L19.5 6.8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
           <span class="brand-name">Taskboard</span>
         </a>
-        <p class="nav-label">TASKS</p>
+        <p class="nav-label">VIEWS</p>
         <nav class="nav-filters" aria-label="Task filters">
           <button class="filter nav-filter" type="button" data-filter="all" aria-pressed="true"><span class="nav-icon">☷</span><span>All tasks</span><span class="filter-count" id="count-all">0</span></button>
+          <button class="filter nav-filter" type="button" data-filter="today" aria-pressed="false"><span class="nav-icon">◷</span><span>Today</span><span class="filter-count" id="count-today">0</span></button>
+          <button class="filter nav-filter" type="button" data-filter="upcoming" aria-pressed="false"><span class="nav-icon">◷</span><span>Upcoming</span><span class="filter-count" id="count-upcoming">0</span></button>
+          <button class="filter nav-filter" type="button" data-filter="overdue" aria-pressed="false"><span class="nav-icon">!</span><span>Overdue</span><span class="filter-count" id="count-overdue">0</span></button>
           <button class="filter nav-filter" type="button" data-filter="active" aria-pressed="false"><span class="nav-icon">○</span><span>To do</span><span class="filter-count" id="count-active">0</span></button>
           <button class="filter nav-filter" type="button" data-filter="done" aria-pressed="false"><span class="nav-icon">✓</span><span>Completed</span><span class="filter-count" id="count-done">0</span></button>
         </nav>
+        <div class="project-heading"><p class="nav-label">PROJECTS</p><button class="subtle-button" id="add-project" type="button" aria-label="Add project">＋</button></div>
+        <nav class="project-list" id="project-list" aria-label="Projects"></nav>
         <div class="sidebar-bottom"><span class="api-status" id="api-status"><span class="status-dot"></span><span id="api-status-text">Connecting</span></span></div>
       </aside>
 
       <div class="main-area">
         <main class="content">
-          <div class="page-heading">
-            <div><h1>My tasks</h1></div>
-          </div>
+          <div class="page-heading"><h1 id="view-heading">All tasks</h1></div>
 
           <form class="add-form" id="add-form">
             <span class="add-icon" aria-hidden="true">＋</span>
             <input id="new-task" name="title" maxlength="100" placeholder="Add a task…" autocomplete="off" required aria-label="New task title" />
             <span class="form-hint">Press Enter to add</span>
-            <button class="primary" type="submit">Add task</button>
+              <button class="primary" type="submit">Add task</button>
           </form>
 
           <section class="task-section" aria-labelledby="list-heading">
             <div class="list-toolbar">
-              <div><h2 id="list-heading">All tasks</h2><p id="task-summary">Connecting to your task list…</p></div>
+              <div><p id="task-summary">Connecting to your task list…</p></div>
               <label class="search-wrap" for="task-search"><span aria-hidden="true">⌕</span><input id="task-search" type="search" placeholder="Search tasks" autocomplete="off"><kbd>/</kbd></label>
             </div>
             <ul class="task-list" id="task-list" aria-live="polite"></ul>
@@ -46,6 +49,19 @@
       </div>
     </div>
     <div class="toast" id="toast" role="status" aria-live="polite"><span id="toast-message"></span><button id="toast-action" type="button" hidden></button></div>
+    <dialog class="editor-dialog" id="task-dialog" aria-labelledby="task-dialog-title">
+      <form class="editor-card" id="task-editor">
+        <div class="dialog-heading"><div><h2 id="task-dialog-title">Task details</h2><p>Keep the useful details with the task.</p></div><button class="icon-button" type="button" data-close-dialog aria-label="Close">×</button></div>
+        <input type="hidden" id="edit-task-id">
+        <label class="field-label" for="task-title">Task</label><input class="field-input" id="task-title" maxlength="100" required placeholder="What needs to get done?">
+        <label class="field-label" for="task-notes">Notes</label><textarea class="field-input field-notes" id="task-notes" maxlength="2000" placeholder="Add useful details (optional)"></textarea>
+        <div class="field-grid"><div><label class="field-label" for="task-due">Due date</label><input class="field-input" id="task-due" type="date"></div><div><label class="field-label" for="task-priority">Priority</label><select class="field-input" id="task-priority"><option value="none">No priority</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></div></div>
+        <label class="field-label" for="task-project">Project</label><select class="field-input" id="task-project"><option value="">No project</option></select>
+        <section class="subtasks-panel"><div class="subtasks-heading"><h3>Subtasks</h3><span id="subtask-count">0</span></div><ul class="subtask-list" id="subtask-list"></ul><div class="subtask-add"><input class="field-input" id="subtask-title" maxlength="100" placeholder="Add a subtask"><button class="secondary" id="add-subtask" type="button">Add</button></div></section>
+        <div class="dialog-actions"><button class="secondary" type="button" data-close-dialog>Cancel</button><button class="primary" type="submit">Save task</button></div>
+      </form>
+    </dialog>
+    <dialog class="editor-dialog" id="project-dialog" aria-labelledby="project-dialog-title"><form class="editor-card compact-card" id="project-editor"><div class="dialog-heading"><div><h2 id="project-dialog-title">New project</h2><p>Group related tasks together.</p></div><button class="icon-button" type="button" data-close-dialog aria-label="Close">×</button></div><input type="hidden" id="edit-project-id"><label class="field-label" for="project-name">Project name</label><input class="field-input" id="project-name" maxlength="60" required placeholder="For example, Home or Study"><div class="dialog-actions"><button class="secondary" type="button" data-close-dialog>Cancel</button><button class="primary" type="submit">Save project</button></div></form></dialog>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
