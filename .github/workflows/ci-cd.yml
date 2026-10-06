@@ -57,6 +57,20 @@ jobs:
         run: |
           install -m 600 /dev/null "$RUNNER_TEMP/ec2_key"
           printf '%s\n' "$EC2_SSH_KEY" > "$RUNNER_TEMP/ec2_key"
+          ready=0
+          for attempt in $(seq 1 24); do
+            if ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new \
+              -i "$RUNNER_TEMP/ec2_key" "ec2-user@$EC2_HOST" 'docker info >/dev/null 2>&1'; then
+              ready=1
+              break
+            fi
+            echo "Waiting for SSH and Docker on EC2 (attempt $attempt/24)..."
+            sleep 10
+          done
+          if [ "$ready" -ne 1 ]; then
+            echo "EC2 was not ready for deployment after four minutes" >&2
+            exit 1
+          fi
           ssh -o StrictHostKeyChecking=accept-new -i "$RUNNER_TEMP/ec2_key" "ec2-user@$EC2_HOST" \
             "AWS_REGION='$AWS_REGION' REGISTRY='$REGISTRY' IMAGE_TAG='$IMAGE_TAG' bash -s" <<'REMOTE'
           set -euo pipefail

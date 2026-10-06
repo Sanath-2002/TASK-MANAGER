@@ -12,7 +12,7 @@ A beginner-friendly task manager with a browser interface and a Python REST API,
 flowchart LR
     Dev[Developer] --> GitHub[GitHub repository]
     GitHub --> Actions[GitHub Actions: lint and test]
-    Actions -->|main branch deploy| ECR[Amazon ECR]
+    Actions -->|manual AWS deploy after setup| ECR[Amazon ECR]
     ECR --> EC2[Amazon EC2: Docker task manager]
     EC2 --> CW[CloudWatch Logs and alarm]
     CW --> SNS[SNS email alert]
@@ -140,7 +140,7 @@ In **Repository → Settings → Secrets and variables → Actions**, add:
 | `EC2_HOST` | Terraform `public_ip` output |
 | `EC2_SSH_KEY` | Contents of the matching private SSH key (keep it private) |
 
-Limit the deployment IAM identity to ECR authentication and push permissions for this repository. EC2 pulls images using its instance profile; do not put AWS keys on the server. Push to `main` after CI passes to build and push the image, replace the running container, and retry the HTTP health check.
+Limit the deployment IAM identity to ECR authentication and push permissions for this repository. EC2 pulls images using its instance profile; do not put AWS keys on the server. After Terraform finishes and the GitHub secrets are configured, go to **Actions → CI and deploy → Run workflow**, select `main`, and start the workflow. It runs the tests, builds and pushes the image, waits for SSH and Docker on EC2, replaces the running container, and retries the HTTP health check. A normal push to `main` does not run the AWS deployment; Vercel deploys the web app automatically from `web`.
 
 On first use, cloud-init installs Docker and may take a few minutes after EC2 becomes reachable. Check the instance system log if SSH deployment runs before setup finishes. The `awslogs` Docker log driver sends container logs to the `task-api` CloudWatch group.
 
@@ -158,7 +158,7 @@ The ECR repository is configured with `force_delete = true`, so destroy can remo
 
 ## CI/CD and branching
 
-Pull requests run Ruff and pytest. A push to `main` runs the same checks and, after success, builds and deploys the Docker image. The separate Terraform workflow checks formatting and validates Terraform when Terraform files change. Review workflow permissions and pin third-party actions to full commit SHAs for a hardened production pipeline.
+Pull requests and pushes to `main` run Ruff and pytest. Vercel deploys the frontend from `web` on pushes to its production branch. The AWS Docker deployment is a separate manual workflow dispatch because it requires provisioned AWS resources and repository secrets. The Terraform workflow checks formatting and validates Terraform on pull requests and main-branch pushes that change Terraform files. Review workflow permissions and pin third-party actions to full commit SHAs for a hardened production pipeline.
 
 Use short-lived feature branches from `dev`, open pull requests into `dev`, and promote reviewed changes from `dev` into `main`. A push to `main` is the deployment trigger, so protect the branch and require successful CI checks.
 
